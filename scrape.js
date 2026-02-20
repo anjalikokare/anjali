@@ -1,18 +1,27 @@
-name: Playwright Table Scraper
-on: [push, workflow_dispatch]
+const { chromium } = require('playwright');
 
-jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: 24f2002015@ds.study.iitm.ac.in - Install Playwright
-        run: npm install playwright
-      - name: Install browsers
-        run: npx playwright install chromium
-      - name: Run scraper
-        run: node scrape.js  # runs from repo root
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  const seeds = [63, 64, 65, 66, 67, 68, 69, 70, 71, 72];
+  const baseUrl = 'https://sanand0.github.io/tdsdata/js_table/?seed=';
+
+  let grandTotal = 0;
+
+  for (const seed of seeds) {
+    await page.goto(baseUrl + seed, { waitUntil: 'networkidle' });
+    await page.waitForSelector('table', { timeout: 10000 });
+
+    const numbers = await page.$$eval('table td, table th', cells =>
+      cells.map(c => parseFloat(c.innerText.trim())).filter(n => !isNaN(n))
+    );
+
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    console.log(`Seed ${seed}: sum = ${sum}`);
+    grandTotal += sum;
+  }
+
+  console.log(`GRAND TOTAL: ${grandTotal}`);
+  await browser.close();
+})();
