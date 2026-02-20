@@ -12,11 +12,11 @@ jobs:
         with:
           node-version: '18'
 
-      - name: 24f2002015@ds.study.iitm.ac.in - Install dependencies
+      - name: 24f2002015@ds.study.iitm.ac.in - Install Playwright
         run: npm install playwright
 
       - name: Install Playwright browsers
-        run: npx playwright install chromium
+        run: npx playwright install chromium --with-deps
 
       - name: Run scraper
         run: node scrape.js
